@@ -1,0 +1,325 @@
+📊 CRYPTO WALLET TRACKER - DATABASE SCHEMAS
+=====================================
+
+5. DATABASE SCHEMA (MONGOOSE)
+
+5.1 Users Collection Schema
+===========================
+
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Name is required'],
+    trim: true,
+    minlength: [2, 'Name must be at least 2 characters long'],
+    maxlength: [50, 'Name cannot exceed 50 characters']
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    lowercase: true,
+    trim: true,
+    validate: {
+      validator: function(email) {
+        return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
+      },
+      message: 'Please enter a valid email address'
+    }
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: [8, 'Password must be at least 8 characters long'],
+    select: false  // Don't include password in queries by default
+  },
+  role: {
+    type: String,
+    enum: {
+      values: ['user', 'admin'],
+      message: 'Role must be either user or admin'
+    },
+    default: 'user'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  lastLogin: {
+    type: Date
+  }
+}, {
+  timestamps: true  // Adds createdAt and updatedAt automatically
+});
+
+// Indexes for Users Collection
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ role: 1 });
+userSchema.index({ createdAt: -1 });
+userSchema.index({ isActive: 1 });
+
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Method to compare passwords
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Method to update last login
+userSchema.methods.updateLastLogin = function() {
+  this.lastLogin = new Date();
+  return this.save({ validateBeforeSave: false });
+};
+
+module.exports = mongoose.model('User', userSchema);
+
+===========================
+
+5.2 Searches Collection Schema
+==============================
+
+const mongoose = require('mongoose');
+
+const searchSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: [true, 'User ID is required'],
+    index: true
+  },
+  walletAddress: {
+    type: String,
+    required: [true, 'Wallet address is required'],
+    trim: true,
+    uppercase: true,  // Store addresses in uppercase for consistency
+    index: true,
+    validate: {
+      validator: function(address) {
+        // Basic BTC address validation
+        const legacyRegex = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/;
+        const segwitRegex = /^3[a-km-zA-HJ-NP-Z1-9]{25,34}$/;
+        const bech32Regex = /^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,87}$/;
+        
+        return legacyRegex.test(address) || 
+               segwitRegex.test(address) || 
+               bech32Regex.test(address);
+      },
+      message: 'Invalid Bitcoin address format'
+    }
+  },
+  // Snapshot of wallet data at time of search
+  walletData: {
+    balance: {
+      type: Number,
+      default: 0,
+      min: [0, 'Balance cannot be negative']
+    },
+    totalTransactions: {
+      type: Number,
+      default: 0,
+      min: [0, 'Total transactions cannot be negative']
+    },
+    totalReceived: {
+      type: Number,
+      default: 0,
+      min: [0, 'Total received cannot be negative']
+    },
+    totalSent: {
+      type: Number,
+      default: 0,
+      min: [0, 'Total sent cannot be negative']
+    },
+    firstTransactionDate: {
+      type: Date,
+      default: null
+    },
+    lastTransactionDate: {
+      type: Date,
+      default: null
+    }
+  },
+  // API response status for debugging
+  apiStatus: {
+    type: String,
+    enum: ['success', 'error', 'partial'],
+    default: 'success'
+  },
+  // Error message if API call failed
+  errorMessage: {
+    type: String,
+    default: null
+  }
+}, {
+  timestamps: true  // Adds createdAt (serves as searchDate) and updatedAt
+});
+
+// Compound indexes for better query performance
+searchSchema.index({ userId: 1, createdAt: -1 });  // User history (newest first)
+searchSchema.index({ walletAddress: 1, createdAt: -1 });  // Wallet search frequency
+searchSchema.index({ createdAt: -1 });  // Admin recent searches
+
+// Virtual field to get searchDate (alias for createdAt)
+searchSchema.virtual('searchDate').get(function() {
+  return this.createdAt;
+});
+
+// Virtual field to get formatted balance in BTC
+searchSchema.virtual('balanceBTC').get(function() {
+  return this.walletData.balance ? (this.walletData.balance / 100000000).toFixed(8) : '0.00000000';
+});
+
+// Ensure virtuals are included in JSON output
+searchSchema.set('toJSON', { virtuals: true });
+searchSchema.set('toObject', { virtuals: true });
+
+// Static method to get most searched addresses
+searchSchema.statics.getMostSearchedAddresses = function(limit = 10) {
+  return this.aggregate([
+    {
+      $group: {
+        _id: '$walletAddress',
+        searchCount: { $sum: 1 },
+        lastSearched: { $max: '$createdAt' },
+        uniqueUsers: { $addToSet: '$userId' }
+      }
+    },
+    {
+      $addFields: {
+        uniqueUserCount: { $size: '$uniqueUsers' }
+      }
+    },
+    {
+      $sort: { searchCount: -1 }
+    },
+    {
+      $limit: limit
+    },
+    {
+      $project: {
+        walletAddress: '$_id',
+        searchCount: 1,
+        lastSearched: 1,
+        uniqueUserCount: 1,
+        _id: 0
+      }
+    }
+  ]);
+};
+
+// Static method to get search statistics
+searchSchema.statics.getSearchStats = function() {
+  return this.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalSearches: { $sum: 1 },
+        uniqueWallets: { $addToSet: '$walletAddress' },
+        uniqueUsers: { $addToSet: '$userId' }
+      }
+    },
+    {
+      $addFields: {
+        uniqueWalletCount: { $size: '$uniqueWallets' },
+        uniqueUserCount: { $size: '$uniqueUsers' }
+      }
+    },
+    {
+      $project: {
+        totalSearches: 1,
+        uniqueWalletCount: 1,
+        uniqueUserCount: 1,
+        _id: 0
+      }
+    }
+  ]);
+};
+
+module.exports = mongoose.model('Search', searchSchema);
+
+===========================
+
+5.3 Database Connection Setup
+=============================
+
+const mongoose = require('mongoose');
+
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error('Database connection error:', error.message);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
+
+===========================
+
+5.4 Environment Variables Required
+==================================
+
+# Database
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<database_name>?retryWrites=true&w=majority
+
+# JWT
+JWT_SECRET=your_super_secure_jwt_secret_key_here
+JWT_EXPIRE=24h
+
+# Server
+PORT=5000
+NODE_ENV=development
+
+# API Rate Limiting
+MAX_REQUESTS=100
+WINDOW_MS=900000
+
+===========================
+
+5.5 Required Database Indexes Summary
+=====================================
+
+Users Collection Indexes:
+- email (unique)
+- role
+- createdAt (descending)
+- isActive
+
+Searches Collection Indexes:
+- userId + createdAt (compound, descending)
+- walletAddress + createdAt (compound, descending)
+- createdAt (descending)
+- userId (single)
+- walletAddress (single)
+
+===========================
+
+SCHEMA VALIDATION SUMMARY:
+✅ Users Collection: Complete with all required fields
+✅ Searches Collection: Complete with wallet data structure
+✅ Proper indexing for performance
+✅ Input validation and sanitization
+✅ Password hashing middleware
+✅ Virtual fields for computed properties
+✅ Static methods for analytics
+✅ Timestamps automatically managed
+✅ Reference relationships properly defined

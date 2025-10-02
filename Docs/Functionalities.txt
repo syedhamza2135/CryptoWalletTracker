@@ -1,0 +1,421 @@
+📋 FUNCTIONAL REQUIREMENTS
+1. CLIENT PANEL REQUIREMENTS
+1.1 Authentication System (MUST HAVE)
+
+✅ User Registration (Sign Up)
+
+Fields: Name, Email, Password
+Email validation and uniqueness check
+Password strength validation (min 8 characters)
+Hash passwords with bcryptjs before storing
+Success message and redirect to login
+
+
+✅ User Login
+
+Fields: Email, Password
+Credential validation
+JWT token generation upon success
+Token storage in localStorage
+Redirect to dashboard after login
+
+
+✅ Session Management
+
+Persistent login with JWT
+Logout functionality (clear token)
+Token expiration handling (24 hours)
+Protected routes (redirect to login if not authenticated)
+
+
+
+1.2 Wallet Search & Tracking (MUST HAVE)
+
+✅ Search Interface
+
+Search bar prominently displayed on dashboard
+Input validation for BTC address format
+Real-time format validation feedback
+Search button
+
+
+✅ BTC Address Validation
+
+Support Legacy addresses (starting with 1)
+Support SegWit addresses (starting with 3)
+Support Bech32 addresses (starting with bc1)
+Error messages for invalid formats
+
+
+✅ Data Fetching
+
+Fetch wallet data from Blockchain.info API (backend)
+Loading spinner during API calls
+Error handling for failed requests
+Display user-friendly error messages
+
+
+
+1.3 Wallet Analytics Dashboard (MUST HAVE)
+
+✅ Overview Section
+
+Current BTC balance
+Total transactions count
+Total received (lifetime)
+Total sent (lifetime)
+First transaction date
+Last transaction date
+
+
+✅ Transaction List
+
+Display last 50 transactions
+Details: Hash (shortened), Date/Time, Amount, Type (Sent/Received)
+Color coding: Green for received, Red for sent
+Confirmation count indicator
+Copy transaction hash functionality
+Simple scroll view (no pagination)
+
+
+✅ Data Analytics & Visualizations
+
+Transaction Timeline Chart (Line chart showing activity over time)
+Top Connected Wallets (Top 10 by transaction volume in BTC)
+One-Time Transaction Wallets Counter (Count of wallets with only 1 transaction)
+Basic Statistics: Average transaction, Largest incoming, Largest outgoing, Most active month
+
+
+
+1.4 Search History (MUST HAVE)
+
+✅ Display list of previously searched addresses
+✅ Show timestamp of each search
+✅ Click to re-search functionality
+✅ Delete individual search records
+✅ Simple table or card layout
+
+1.5 User Profile (MUST HAVE)
+
+✅ View profile information (name, email)
+✅ Edit name functionality
+✅ Change password functionality
+✅ Logout button
+
+
+2. ADMIN PANEL REQUIREMENTS
+2.1 Admin Authentication (MUST HAVE)
+
+✅ Separate admin login route
+✅ Secure admin credentials
+✅ Admin role stored in user document (role: 'admin')
+✅ JWT token with role information
+✅ Admin session management
+
+2.2 Admin Dashboard Overview (MUST HAVE)
+
+✅ Total registered users count
+✅ Total searches performed (all users)
+✅ Active users (logged in last 7 days)
+✅ Most searched wallet addresses
+✅ Recent user registrations (last 5)
+✅ Recent searches (last 10)
+
+2.3 User Management (MUST HAVE)
+
+✅ User List View
+
+Table displaying all registered users
+Columns: Name, Email, Registration Date, Total Searches
+Search/filter users by email
+
+
+✅ User Details View
+
+Click on user to see details
+Show user's search history
+Display user statistics
+
+
+✅ User Actions
+
+View user profile
+View user's search history
+Delete user account (with confirmation)
+Cascade delete (delete user's searches too)
+
+
+
+2.4 Search Analytics (MUST HAVE)
+
+✅ Global Search Data
+
+List of all wallet addresses searched
+Search frequency for each address
+User who performed search
+When it was searched
+
+
+✅ Simple Analytics
+
+Top 10 most searched wallet addresses
+Search activity by date (line chart)
+Total searches per day (last 7 days)
+
+
+
+
+🔧 TECHNICAL REQUIREMENTS
+3. TECH STACK (REQUIRED)
+3.1 Frontend
+
+✅ React.js (v18+)
+✅ React Router v6
+✅ Axios for HTTP requests
+✅ Tailwind CSS or CSS Modules for styling
+✅ Recharts for data visualization
+✅ React Context API or useState for state management
+✅ React Toastify for notifications
+
+3.2 Backend
+
+✅ Node.js (v18+ LTS)
+✅ Express.js framework
+✅ JWT for authentication
+✅ bcryptjs for password hashing
+✅ express-validator for input validation
+✅ helmet for security headers
+✅ cors for CORS handling
+✅ express-rate-limit for API protection
+
+3.3 Database
+
+✅ MongoDB (MongoDB Atlas)
+✅ Mongoose ODM
+✅ Proper indexing for performance
+
+3.4 External API
+
+✅ Blockchain.info API (free tier, no API key required)
+✅ Alternative: BlockCypher or Mempool.space
+
+3.5 Deployment
+
+✅ Frontend: Vercel or Netlify
+✅ Backend: Render or Railway
+✅ Database: MongoDB Atlas
+✅ Environment variables management
+
+
+📊 DATABASE REQUIREMENTS
+4. DATABASE SCHEMA
+4.1 Users Collection (REQUIRED FIELDS)
+
+✅ name (String, required, 2-50 chars)
+✅ email (String, required, unique, validated)
+✅ password (String, required, min 8 chars, hashed)
+✅ role (String, enum: ['user', 'admin'], default: 'user')
+✅ isActive (Boolean, default: true)
+✅ lastLogin (Date)
+✅ createdAt (Date, auto-generated)
+✅ updatedAt (Date, auto-generated)
+
+4.2 Searches Collection (REQUIRED FIELDS)
+
+✅ userId (ObjectId, ref: 'User', required, indexed)
+✅ walletAddress (String, required, indexed, uppercase)
+✅ walletData (Object):
+
+balance (Number)
+totalTransactions (Number)
+totalReceived (Number)
+totalSent (Number)
+firstTransactionDate (Date)
+lastTransactionDate (Date)
+
+
+✅ createdAt (Date, auto-generated)
+✅ updatedAt (Date, auto-generated)
+
+4.3 Required Indexes
+
+✅ users.email (unique)
+✅ users.role
+✅ users.createdAt
+✅ searches.userId + searches.createdAt (compound)
+✅ searches.walletAddress + searches.createdAt (compound)
+✅ searches.createdAt
+
+
+🔌 API ENDPOINTS REQUIREMENTS
+5. REQUIRED API ENDPOINTS
+5.1 Authentication Routes
+
+✅ POST /api/auth/register
+✅ POST /api/auth/login
+✅ GET /api/auth/me
+✅ POST /api/auth/logout
+
+5.2 User Routes (Protected)
+
+✅ GET /api/user/profile
+✅ PUT /api/user/profile
+✅ PUT /api/user/password
+
+5.3 Wallet Routes (Protected)
+
+✅ GET /api/wallet/:address
+✅ POST /api/wallet/analyze/:address
+
+5.4 Search Routes (Protected)
+
+✅ POST /api/search
+✅ GET /api/search/history
+✅ DELETE /api/search/:id
+
+5.5 Admin Routes (Protected + Admin Only)
+
+✅ GET /api/admin/stats
+✅ GET /api/admin/users
+✅ GET /api/admin/users/:id
+✅ DELETE /api/admin/users/:id
+✅ GET /api/admin/searches
+✅ GET /api/admin/analytics
+
+
+🎨 UI/UX REQUIREMENTS
+6. REQUIRED PAGES
+6.1 Client Pages
+
+✅ Landing/Home Page (/)
+✅ Sign Up Page (/signup)
+✅ Login Page (/login)
+✅ User Dashboard (/dashboard) - Protected
+✅ Wallet Analysis Page (/wallet/:address) - Protected
+✅ Search History Page (/history) - Protected
+✅ User Profile Page (/profile) - Protected
+
+6.2 Admin Pages
+
+✅ Admin Dashboard (/admin/dashboard) - Admin Protected
+✅ User Management (/admin/users) - Admin Protected
+✅ Admin Analytics (/admin/analytics) - Admin Protected
+
+
+🔒 SECURITY REQUIREMENTS
+7. SECURITY (CRITICAL)
+
+✅ HTTPS for production
+✅ Input sanitization (prevent XSS)
+✅ MongoDB injection prevention
+✅ Rate limiting (100 requests per 15 min per IP)
+✅ CORS configuration (whitelist frontend domain)
+✅ Password hashing with bcryptjs (10+ rounds)
+✅ JWT token expiration (24 hours)
+✅ Environment variables for sensitive data
+✅ Never commit .env files
+✅ Admin route protection (verify role)
+✅ Helmet.js for HTTP security headers
+✅ Validate all inputs on backend
+✅ Password field hidden in queries (select: false)
+
+
+⚡ PERFORMANCE REQUIREMENTS
+8. PERFORMANCE
+
+✅ Page load time < 3 seconds
+✅ API response time < 2 seconds
+✅ Smooth transitions and animations
+✅ Efficient database queries with indexing
+✅ Responsive design (mobile, tablet, desktop)
+
+
+📱 USABILITY REQUIREMENTS
+9. USABILITY
+
+✅ Intuitive user interface
+✅ Responsive design (320px to 1920px+)
+✅ Clear error messages
+✅ Loading indicators for async operations
+✅ Success notifications
+✅ Consistent design language
+✅ Toast notifications for user feedback
+
+
+🧪 TESTING REQUIREMENTS
+10. TESTING
+
+✅ All user flows tested
+✅ Cross-browser testing (Chrome, Firefox, Safari, Edge)
+✅ Responsive design testing
+✅ Admin functionality testing
+✅ Security testing (unauthorized access attempts)
+✅ Error handling testing
+
+
+📚 DOCUMENTATION REQUIREMENTS
+11. DOCUMENTATION
+
+✅ Comprehensive README.md
+✅ Installation instructions
+✅ Environment variables documentation
+✅ Demo credentials
+✅ Screenshots (4-5 minimum)
+✅ Tech stack documentation
+✅ Features list
+✅ API endpoint documentation
+
+
+🚀 DEPLOYMENT REQUIREMENTS
+12. DEPLOYMENT
+
+✅ Frontend deployed and accessible
+✅ Backend deployed and accessible
+✅ Database hosted on MongoDB Atlas
+✅ Environment variables configured
+✅ HTTPS enabled
+✅ Demo accounts created and working
+✅ All features working in production
+
+
+❌ EXPLICITLY EXCLUDED (NOT REQUIRED)
+These were removed to keep the project manageable:
+
+❌ Forgot password functionality
+❌ Email notifications
+❌ Two-factor authentication
+❌ Export to CSV/PDF
+❌ Advanced pagination
+❌ Real-time WebSocket updates
+❌ Caching mechanism
+❌ User suspension (only delete)
+❌ Activity heatmaps
+❌ Multiple wallet tracking
+❌ Other cryptocurrencies support
+
+
+📊 SUMMARY CHECKLIST
+Core Features (11):
+
+✅ User Authentication (Register, Login, Logout)
+✅ JWT Protected Routes
+✅ BTC Wallet Search
+✅ Wallet Data Display
+✅ Transaction List (50 transactions)
+✅ Transaction Timeline Chart
+✅ Top Connected Wallets Analysis
+✅ One-Time Wallets Counter
+✅ Search History Management
+✅ User Profile Management
+✅ Admin Panel (Dashboard, Users, Analytics)
+
+Technical Requirements (8):
+
+✅ MERN Stack
+✅ MongoDB with proper schemas
+✅ JWT Authentication
+✅ Role-Based Access Control
+✅ External API Integration
+✅ Data Visualization (Recharts)
+✅ Responsive Design
+✅ Production Deployment
