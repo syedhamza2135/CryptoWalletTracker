@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Crypto Wallet Tracker - Debug Test</h1>
+        
+        <div class="status success">
+            ✅ HTML is loading correctly
+        </div>
+        
+        <div class="status success">
+            ✅ CSS styles are working
+        </div>
+        
+        <div id="js-test" class="status error">
+            ❌ JavaScript not executed yet
+        </div>
+        
+        <div id="react-test" class="status error">
+            ❌ React test pending...
+        </div>
+        
+        <h2>System Information</h2>
+        <ul>
+            <li><strong>Current Time:</strong> <span id="current-time">Loading...</span></li>
+            <li><strong>User Agent:</strong> <span id="user-agent">Loading...</span></li>
+            <li><strong>Location:</strong> <span id="location">Loading...</span></li>
+        </ul>
+        
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Basic JavaScript test
+        document.getElementById('js-test').innerHTML = '✅ JavaScript is working';
+        document.getElementById('js-test').className = 'status success';
+        
+        // System info
+        document.getElementById('current-time').textContent = new Date().toLocaleString();
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        document.getElementById('location').textContent = window.location.href;
+        
+        // Test if we can load modules
+        const testResults = document.getElementById('test-results');
+        
+        // Test 1: Basic module syntax
+        try {
+            // This will fail in older browsers
+            eval('import("data:text/javascript,export default 42").then(m => console.log("ES modules work:", m.default))');
+            testResults.innerHTML += '<div class="status success">✅ ES Modules supported</div>';
+        } catch (e) {
+            testResults.innerHTML += '<div class="status error">❌ ES Modules not supported: ' + e.message + '</div>';
+        }
+        
+        // Test 2: React simulation
+        setTimeout(() => {
+            try {
+                // Simulate React mounting
+                document.getElementById('react-test').innerHTML = '✅ React simulation working';
+                document.getElementById('react-test').className = 'status success';
+            } catch (e) {
+                document.getElementById('react-test').innerHTML = '❌ React simulation failed: ' + e.message;
+            }
+        }, 100);
+        
+        // Log everything to console
+        console.log('Debug test loaded successfully');
+        console.log('Location:', window.location.href);
+        console.log('User Agent:', navigator.userAgent);
+    </script>
+</body>
+</html>

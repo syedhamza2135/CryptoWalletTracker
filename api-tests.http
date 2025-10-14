@@ -1,0 +1,111 @@
+### 🚀 Crypto Wallet Tracker API Tests - CORRECTED FIELDS
+### Base URL
+@baseUrl = http://localhost:5000
+
+### 1. Health Check
+GET {{baseUrl}}/api/health
+
+### 2. Register User (Fields: name, email, password)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### 3. Login User (Fields: email, password)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### 4. Get Current User (Replace YOUR_TOKEN with actual token)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### 5. Get User Profile
+GET {{baseUrl}}/api/user/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### 6. Update Profile (Field: name only - email cannot be updated)
+PUT {{baseUrl}}/api/user/profile
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+{
+  "name": "Updated User Name"
+}
+
+### 7. Change Password (Fields: currentPassword, newPassword)
+PUT {{baseUrl}}/api/user/password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+{
+  "currentPassword": "Password123!",
+  "newPassword": "NewPassword123!"
+}
+
+### 8. Search Wallet (Field: address)
+POST {{baseUrl}}/api/wallet/search
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+{
+  "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+}
+
+### 9. Get Wallet Info (no save)
+GET {{baseUrl}}/api/wallet/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### 10. Get Search History
+GET {{baseUrl}}/api/search/history
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### 11. Clear Search History
+DELETE {{baseUrl}}/api/search/history/clear
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### 12. Get Single Search (Replace SEARCH_ID)
+GET {{baseUrl}}/api/search/SEARCH_ID_HERE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### 13. Delete Single Search (Replace SEARCH_ID)
+DELETE {{baseUrl}}/api/search/SEARCH_ID_HERE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### 14. Logout
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWUzNmUyZDhlMDE4MTcyNjg5YzEyYSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNDQyMjY4LCJleHAiOjE3NjA1Mjg2Njh9.Z4MD8I9GXKvqxVQSwplcSYyOUtVsxL-Qcjn-GOE2RpA
+
+### === ADMIN ROUTES (Need admin role) ===
+
+### 15. Admin Dashboard Stats
+GET {{baseUrl}}/api/admin/stats
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 16. Get All Users
+GET {{baseUrl}}/api/admin/users
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 17. Get Specific User (Replace USER_ID)
+GET {{baseUrl}}/api/admin/users/USER_ID_HERE
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 18. Delete User (Replace USER_ID)
+DELETE {{baseUrl}}/api/admin/users/USER_ID_HERE
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 19. Get All Searches
+GET {{baseUrl}}/api/admin/searches
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 20. Get Analytics
+GET {{baseUrl}}/api/admin/analytics
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
