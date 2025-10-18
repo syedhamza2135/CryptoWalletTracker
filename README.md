@@ -25,12 +25,7 @@ A comprehensive Bitcoin wallet tracking and analytics application built with Nod
 - **express-rate-limit** - Rate limiting
 
 ### Frontend
-- **React** - UI framework
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **Axios** - HTTP client
-- **React Router** - Navigation
-- **Recharts** - Data visualization
+*Frontend will be built from scratch*
 
 ## Project Structure
 
@@ -38,17 +33,14 @@ A comprehensive Bitcoin wallet tracking and analytics application built with Nod
 CryptoWalletTracker/
 ├── Docs/                    # Documentation
 ├── Project/
-│   ├── backend/            # Node.js/Express API
-│   │   ├── config/         # Database configuration
-│   │   ├── controllers/    # Route controllers
-│   │   ├── middleware/     # Custom middleware
-│   │   ├── models/         # Mongoose models
-│   │   ├── routes/         # API routes
-│   │   ├── services/       # Business logic
-│   │   └── utils/          # Utility functions
-│   └── frontend/           # React application
-│       ├── public/         # Static assets
-│       └── src/            # React components and logic
+│   └── backend/            # Node.js/Express API
+│       ├── config/         # Database configuration
+│       ├── controllers/    # Route controllers
+│       ├── middleware/     # Custom middleware
+│       ├── models/         # Mongoose models
+│       ├── routes/         # API routes
+│       ├── services/       # Business logic
+│       └── utils/          # Utility functions
 ```
 
 ## Getting Started
@@ -84,23 +76,6 @@ CryptoWalletTracker/
    ```
 
 5. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-### Frontend Setup
-
-1. Navigate to frontend directory:
-   ```bash
-   cd Project/frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
    ```bash
    npm run dev
    ```

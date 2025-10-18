@@ -71,6 +71,57 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// API Documentation endpoint - shows all available endpoints
+app.get('/api', (req, res) => {
+  const apiEndpoints = {
+    title: "Crypto Wallet Tracker API",
+    version: "1.0.0",
+    baseUrl: `http://localhost:${process.env.PORT || 5000}`,
+    endpoints: {
+      "Authentication": {
+        "POST /api/auth/register": "Register new user",
+        "POST /api/auth/login": "Login user", 
+        "GET /api/auth/me": "Get current user info (requires auth)",
+        "POST /api/auth/logout": "Logout user (requires auth)"
+      },
+      "User Management": {
+        "GET /api/user/profile": "Get user profile (requires auth)",
+        "PUT /api/user/profile": "Update user profile (requires auth)",
+        "PUT /api/user/password": "Change password (requires auth)"
+      },
+      "Wallet Operations": {
+        "POST /api/wallet/search": "Search wallet and save to history (requires auth)",
+        "GET /api/wallet/:address": "Get wallet info without saving (requires auth)"
+      },
+      "Search History": {
+        "GET /api/search/history": "Get user's search history (requires auth)",
+        "DELETE /api/search/history/clear": "Clear all search history (requires auth)",
+        "GET /api/search/:id": "Get specific search details (requires auth)",
+        "DELETE /api/search/:id": "Delete specific search (requires auth)"
+      },
+      "Admin Operations": {
+        "GET /api/admin/stats": "Get dashboard statistics (requires admin)",
+        "GET /api/admin/users": "Get all users (requires admin)",
+        "GET /api/admin/users/:id": "Get specific user (requires admin)",
+        "DELETE /api/admin/users/:id": "Delete user (requires admin)",
+        "GET /api/admin/searches": "Get all searches (requires admin)",
+        "GET /api/admin/analytics": "Get search analytics (requires admin)"
+      },
+      "System": {
+        "GET /api/health": "Health check endpoint",
+        "GET /api": "This API documentation"
+      }
+    },
+    notes: {
+      "Authentication": "Include 'Authorization: Bearer <token>' header for protected routes",
+      "Admin Routes": "Require admin role in addition to authentication",
+      "Rate Limiting": "Auth routes have stricter rate limits applied"
+    }
+  };
+
+  res.json(apiEndpoints);
+});
+
 // 404 handler - must be after all routes
 app.use((req, res) => {
   res.status(404).json({
@@ -89,6 +140,9 @@ app.use((err, req, res, next) => {
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 });
+// In your backend server file (e.g., server.js or app.js)
+
+const cors = require('cors');
 
 // Start server
 const PORT = process.env.PORT || 5000;
