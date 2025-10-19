@@ -32,7 +32,6 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    
     // Handle 401 - Unauthorized (logout user)
     if (error.response?.status === 401) {
       storage.clearAll();

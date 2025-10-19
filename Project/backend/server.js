@@ -142,7 +142,7 @@ app.use((err, req, res, next) => {
 });
 // In your backend server file (e.g., server.js or app.js)
 
-const cors = require('cors');
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
