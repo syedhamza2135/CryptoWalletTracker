@@ -8,21 +8,13 @@ import { ENDPOINTS } from "../Utils/constants.js";
  */
 const walletService = {
   searchWallet: async (address) => {
-    try {
-      const response = await api.post(ENDPOINTS.WALLET_SEARCH, { address });
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.post(ENDPOINTS.WALLET_SEARCH, { address });
+    return response; // Response interceptor already returns response.data
   },
 
   getWallet: async (address) => {
-    try {
-      const response = await api.get(`${ENDPOINTS.WALLET_GET}/${address}`);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(`${ENDPOINTS.WALLET_GET}/${address}`);
+    return response;
   },
 };
 

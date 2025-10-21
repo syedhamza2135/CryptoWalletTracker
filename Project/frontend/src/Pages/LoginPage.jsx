@@ -1,63 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FormGroup, Button, Alert, Card } from '../Components/Common';
-import { Container } from '../Components/Layout';
-import authService from '../Services/authService';
+import { useAuthContext } from '../Context/AuthContext';
+import {
+  Box,
+  Container,
+  Card,
+  CardBody,
+  Heading,
+  Text,
+  FormControl,
+  FormLabel,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Button,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  Link as ChakraLink,
+  VStack,
+  HStack,
+  IconButton,
+  CloseButton
+} from '@chakra-ui/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuthContext();
   
-  // Form state
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   
-  // UI state
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear field error when user starts typing
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
+      setErrors(prev => ({ ...prev, [name]: null }));
     }
-    // Do NOT clear alert on input change
+    if (alertMessage) setAlertMessage(null);
   };
-
-  // Auto-dismiss alert after 4 seconds
-  useEffect(() => {
-    if (alertMessage) {
-      const timer = setTimeout(() => {
-        setAlertMessage(null);
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [alertMessage]);
   
-  // Client-side validation
   const validateForm = () => {
     const newErrors = {};
-    const trimmedEmail = formData.email.trim();
     
-    // Email validation
-    if (!trimmedEmail) {
+    if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(trimmedEmail)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
     
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
@@ -65,48 +65,35 @@ const LoginPage = () => {
     return newErrors;
   };
   
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Clear previous alerts
     setAlertMessage(null);
     
-    // Validate form
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
     
-    // Call API
     setLoading(true);
     
     try {
-      const response = await authService.login(formData);
+      await login(formData);
       
-      // Show success message
       setAlertMessage({
         type: 'success',
-        message: response.message || 'Login successful!'
+        message: 'Login successful!'
       });
       
-      // Redirect to dashboard after short delay
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
+      // Navigate immediately after login
+      navigate('/dashboard');
       
     } catch (error) {
-      // Handle API errors
-      console.error('Login error:', error);
-      
-      // Show error alert
       setAlertMessage({
         type: 'error',
-        message: error.response?.data?.message || error.message || 'Login failed. Please try again.'
+        message: error.response?.data?.message || 'Login failed'
       });
       
-      // Handle validation errors from backend
       if (error.response?.data?.errors) {
         const backendErrors = {};
         error.response.data.errors.forEach(err => {
@@ -114,98 +101,135 @@ const LoginPage = () => {
         });
         setErrors(backendErrors);
       }
-      
     } finally {
       setLoading(false);
     }
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center py-12 px-4">
-      <Container maxWidth="sm">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Welcome Back
-          </h1>
-          <p className="text-gray-600">
-            Sign in to your account to continue
-          </p>
-        </div>
-        
-        <Card>
-          {/* Alert Messages */}
-          {alertMessage && (
-            <Alert
-              type={alertMessage.type}
-              message={alertMessage.message}
-              onClose={() => setAlertMessage(null)}
-            />
-          )}
+    <Box 
+      minH="100vh" 
+      bgGradient="linear(to-br, blue.50, gray.100)" 
+      py={12} 
+      px={4}
+    >
+      <Container maxW="md">
+        <VStack spacing={8} align="stretch">
           
-          {/* Login Form */}
-          <form onSubmit={handleSubmit}>
-            
-            {/* Email Field */}
-            <FormGroup
-              label="Email Address"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="john@example.com"
-              error={errors.email}
-              required
-            />
-            
-            {/* Password Field */}
-            <FormGroup
-              label="Password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              error={errors.password}
-              required
-            />
-            
-            {/* Forgot Password Link */}
-            <div className="text-right mb-4">
-              <Link 
-                to="/forgot-password" 
-                className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-            
-            {/* Submit Button */}
-            <Button 
-              type="submit" 
-              variant="primary" 
-              fullWidth
-              loading={loading}
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
+          {/* Header */}
+          <Box textAlign="center">
+            <Heading size="xl" mb={2}>Welcome Back</Heading>
+            <Text color="gray.600">Sign in to your account to continue</Text>
+          </Box>
           
-          {/* Register Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link 
-                to="/register" 
-                className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
-              >
-                Create one now
-              </Link>
-            </p>
-          </div>
-        </Card>
+          {/* Card */}
+          <Card>
+            <CardBody>
+              {/* Alert */}
+              {alertMessage && (
+                <Alert 
+                  status={alertMessage.type === 'success' ? 'success' : 'error'} 
+                  mb={4}
+                  borderRadius="md"
+                >
+                  <AlertDescription flex={1}>
+                    {alertMessage.message}
+                  </AlertDescription>
+                  <CloseButton 
+                    onClick={() => setAlertMessage(null)}
+                    position="relative"
+                    right={-1}
+                    top={-1}
+                  />
+                </Alert>
+              )}
+              
+              {/* Form */}
+              <form onSubmit={handleSubmit}>
+                <VStack spacing={4}>
+                  
+                  {/* Email */}
+                  <FormControl isInvalid={errors.email} isRequired>
+                    <FormLabel>Email Address</FormLabel>
+                    <Input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="john@example.com"
+                    />
+                    {errors.email && (
+                      <Text color="red.500" fontSize="sm" mt={1}>
+                        {errors.email}
+                      </Text>
+                    )}
+                  </FormControl>
+                  
+                  {/* Password */}
+                  <FormControl isInvalid={errors.password} isRequired>
+                    <FormLabel>Password</FormLabel>
+                    <InputGroup>
+                      <Input
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter your password"
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          size="sm"
+                          variant="ghost"
+                          icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                          onClick={() => setShowPassword(!showPassword)}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
+                    {errors.password && (
+                      <Text color="red.500" fontSize="sm" mt={1}>
+                        {errors.password}
+                      </Text>
+                    )}
+                  </FormControl>
+                  
+                  {/* Forgot Password */}
+                  <Box w="100%" textAlign="right">
+                    <ChakraLink 
+                      as={Link} 
+                      to="/forgot-password" 
+                      fontSize="sm" 
+                      color="blue.600"
+                    >
+                      Forgot password?
+                    </ChakraLink>
+                  </Box>
+                  
+                  {/* Submit */}
+                  <Button
+                    type="submit"
+                    colorScheme="blue"
+                    width="100%"
+                    isLoading={loading}
+                    loadingText="Signing in..."
+                  >
+                    Sign In
+                  </Button>
+                </VStack>
+              </form>
+              
+              {/* Register Link */}
+              <Text textAlign="center" mt={6} fontSize="sm" color="gray.600">
+                Don't have an account?{' '}
+                <ChakraLink as={Link} to="/register" color="blue.600" fontWeight="medium">
+                  Create one now
+                </ChakraLink>
+              </Text>
+            </CardBody>
+          </Card>
+        </VStack>
       </Container>
-    </div>
+    </Box>
   );
 };
 

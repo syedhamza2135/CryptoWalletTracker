@@ -14,61 +14,37 @@ import { ENDPOINTS } from "../Utils/constants.js";
 const adminService = {
   //Admin stats
   getAdminStats: async () => {
-    try {
-      const response = await api.get(ENDPOINTS.ADMIN_STATS);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(ENDPOINTS.ADMIN_STATS);
+    return response;
   },
   // Fetch all users
   fetchAllUsers: async () => {
-    try {
-      const response = await api.get(ENDPOINTS.ADMIN_USERS);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(ENDPOINTS.ADMIN_USERS);
+    return response;
   },
   // Get user details by ID
   getUserDetails: async (userId) => {
-    try {
-      const response = await api.get(
-        `${ENDPOINTS.ADMIN_USER_DETAIL}/${userId}`
-      );
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(
+      `${ENDPOINTS.ADMIN_USER_DETAIL}/${userId}`
+    );
+    return response;
   },
   // Delete a user by ID
   deleteUser: async (userId) => {
-    try {
-      const response = await api.delete(
-        `${ENDPOINTS.ADMIN_USER_DELETE}/${userId}`
-      );
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.delete(
+      `${ENDPOINTS.ADMIN_USER_DELETE}/${userId}`
+    );
+    return response;
   },
   // Admin search logs
   fetchAdminSearches: async () => {
-    try {
-      const response = await api.get(ENDPOINTS.ADMIN_SEARCHES);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(ENDPOINTS.ADMIN_SEARCHES);
+    return response;
   },
   // Admin analytics
   fetchAdminAnalytics: async () => {
-    try {
-      const response = await api.get(ENDPOINTS.ADMIN_ANALYTICS);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(ENDPOINTS.ADMIN_ANALYTICS);
+    return response;
   },
 };
 

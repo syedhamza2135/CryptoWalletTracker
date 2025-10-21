@@ -10,21 +10,13 @@ import { ENDPOINTS } from "../Utils/constants.js";
 const userService = {
   // Update user profile
   updateProfile: async (userData) => {
-    try {
-      const response = await api.put(ENDPOINTS.USER_PROFILE, userData);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.put(ENDPOINTS.USER_PROFILE, userData);
+    return response;
   },
   // Change user password
   changePassword: async (passwordData) => {
-    try {
-      const response = await api.put(ENDPOINTS.USER_PASSWORD, passwordData);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.put(ENDPOINTS.USER_PASSWORD, passwordData);
+    return response;
   },
 };
 

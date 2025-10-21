@@ -5,7 +5,7 @@ import { API_BASE_URL } from "../Utils/constants.js";
 // Create axios instance with base URL
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // Increased timeout to 30 seconds
   timeoutErrorMessage: "Request timed out. Please try again.",
   headers: {
     "Content-Type": "application/json",
@@ -40,14 +40,17 @@ api.interceptors.response.use(
 
     // Handle 403 - Forbidden
     if (error.response?.status === 403) {
+      console.warn('Access forbidden - you may not have permission for this action');
     }
 
     // Handle 500 - Server error
     if (error.response?.status === 500) {
+      console.error('Server error occurred:', error.response.data);
     }
 
     // Handle network errors
     if (!error.response) {
+      console.error('Network error - please check your connection');
     }
 
     return Promise.reject(error);

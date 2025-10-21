@@ -1,9 +1,0 @@
-export { default as Button } from './Button.jsx';
-export { default as Input } from './Input.jsx';
-export { default as Label } from './Label.jsx';
-export { default as ErrorMessage } from './ErrorMessage.jsx';
-export { default as Loading } from './Loading.jsx';
-export { default as Card } from './Card.jsx';
-export { default as FormGroup } from './FormGroup.jsx';
-export { default as PasswordInput } from './PasswordInput.jsx';
-export { default as Alert } from './Alert.jsx';

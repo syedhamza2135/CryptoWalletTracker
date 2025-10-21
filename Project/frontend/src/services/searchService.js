@@ -1,4 +1,4 @@
-import api from "./api.js";
+import api from "./api.js"
 import { ENDPOINTS } from "../Utils/constants.js";
 
 /**
@@ -13,7 +13,7 @@ const searchService = {
   getHistory: async () => {
     try {
       const response = await api.get(ENDPOINTS.SEARCH_HISTORY);
-      return Array.isArray(response) ? response : [];
+      return response.data && response.data.searches ? response.data.searches : [];
     } catch (error) {
       console.error("Error fetching search history:", error);
       return [];
@@ -24,35 +24,23 @@ const searchService = {
 
   // Get single search detail
   getSearchDetail: async (id) => {
-    try {
-      const response = await api.get(`${ENDPOINTS.SEARCH_DETAIL}/${id}`);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(`${ENDPOINTS.SEARCH_DETAIL}/${id}`);
+    return response.data && response.data.search ? response.data.search : null;
     // GET /api/search/:id
     // Return search details
   },
 
   // Delete specific search
   deleteSearch: async (id) => {
-    try {
-      const response = await api.delete(`${ENDPOINTS.DELETE_SEARCH}/${id}`);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.delete(`${ENDPOINTS.DELETE_SEARCH}/${id}`);
+    return response;
     // DELETE /api/search/:id
   },
 
   // Clear all history
   clearHistory: async () => {
-    try {
-      const response = await api.delete(ENDPOINTS.CLEAR_SEARCH_HISTORY);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.delete(ENDPOINTS.CLEAR_SEARCH_HISTORY);
+    return response;
     // DELETE /api/search/history/clear
   },
 };

@@ -1,6 +1,5 @@
 import api from "./api.js";
 import { ENDPOINTS } from "../Utils/constants.js";
-import storage from "../Utils/storage.js";
 
 /**  Authentication
  * LOGIN: 'api/auth/login',
@@ -11,36 +10,20 @@ import storage from "../Utils/storage.js";
 
 const authService = {
   login: async (credentials) => {
-    try {
-      const response = await api.post(ENDPOINTS.LOGIN, credentials);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.post(ENDPOINTS.LOGIN, credentials);
+    return response.data; // Extract the data from the response
   },
   register: async (userData) => {
-    try {
-      const response = await api.post(ENDPOINTS.REGISTER, userData);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.post(ENDPOINTS.REGISTER, userData);
+    return response.data; // Extract the data from the response
   },
   logout: async () => {
-    try {
-      const response = await api.post(ENDPOINTS.LOGOUT);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.post(ENDPOINTS.LOGOUT);
+    return response; // Logout returns { success: true, message: '...' }
   },
   getCurrentUser: async () => {
-    try {
-      const response = await api.get(ENDPOINTS.CURRENT_USER);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(ENDPOINTS.CURRENT_USER);
+    return response.data.user; // Extract user from data
   },
 };
 

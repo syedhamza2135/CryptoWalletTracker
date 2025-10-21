@@ -7,12 +7,8 @@ import { ENDPOINTS } from "../Utils/constants.js";
 const systemService = {
   // Check system health
   checkHealth: async () => {
-    try {
-      const response = await api.get(ENDPOINTS.HEALTH);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.get(ENDPOINTS.HEALTH);
+    return response;
   },
 };
 
