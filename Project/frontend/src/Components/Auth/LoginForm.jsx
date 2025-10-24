@@ -13,34 +13,23 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { useAuth } from '../../hooks/useAuth';
-import { isValidEmail, isValidPassword, isValidName } from '../../utils/validators';
+import { isValidEmail } from '../../utils/validators';
 
-export default function RegisterForm() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+export default function LoginForm() {
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
 
   const validate = () => {
     const newErrors = {};
-    if (!isValidName(formData.name)) {
-      newErrors.name = 'Name must be 2-50 characters';
-    }
     if (!isValidEmail(formData.email)) {
       newErrors.email = 'Invalid email address';
     }
-    if (!isValidPassword(formData.password)) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -52,20 +41,16 @@ export default function RegisterForm() {
 
     setLoading(true);
     try {
-      await register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
+      await login(formData);
       toast({
-        title: 'Registration successful',
+        title: 'Login successful',
         status: 'success',
         duration: 3000,
       });
       navigate('/dashboard');
     } catch (error) {
       toast({
-        title: 'Registration failed',
+        title: 'Login failed',
         description: error.message,
         status: 'error',
         duration: 4000,
@@ -78,16 +63,7 @@ export default function RegisterForm() {
   return (
     <Box maxW="md" mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg">
       <VStack spacing={4} as="form" onSubmit={handleSubmit}>
-        <Heading size="lg">Register</Heading>
-
-        <FormControl isInvalid={errors.name}>
-          <FormLabel>Name</FormLabel>
-          <Input
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <FormErrorMessage>{errors.name}</FormErrorMessage>
-        </FormControl>
+        <Heading size="lg">Login</Heading>
 
         <FormControl isInvalid={errors.email}>
           <FormLabel>Email</FormLabel>
@@ -109,29 +85,19 @@ export default function RegisterForm() {
           <FormErrorMessage>{errors.password}</FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={errors.confirmPassword}>
-          <FormLabel>Confirm Password</FormLabel>
-          <Input
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-          />
-          <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
-        </FormControl>
-
         <Button
           type="submit"
           colorScheme="blue"
           width="full"
           isLoading={loading}
         >
-          Register
+          Login
         </Button>
 
         <Text>
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-500 hover:underline">
-            Login
+          Don't have an account?{' '}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Register
           </Link>
         </Text>
       </VStack>

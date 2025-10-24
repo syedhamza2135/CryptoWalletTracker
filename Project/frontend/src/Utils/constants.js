@@ -1,35 +1,25 @@
-export const API_BASE_URL = "http://localhost:5000";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-export const ENDPOINTS = {
-  // Authentication
-  LOGIN: "api/auth/login",
-  REGISTER: "api/auth/register",
-  LOGOUT: "api/auth/logout",
-  CURRENT_USER: "api/auth/me",
+export const ROLES = {
+  USER: 'user',
+  ADMIN: 'admin',
+};
 
-  // Wallet Operations
-  WALLET_SEARCH: "api/wallet/search",
-  WALLET_GET: "api/wallet/",
+export const API_STATUS = {
+  SUCCESS: 'success',
+  ERROR: 'error',
+  PARTIAL: 'partial',
+};
 
-  // Search History
-  SEARCH_HISTORY: "api/search/history",
-  SEARCH_DETAIL: "api/search/",
-  DELETE_SEARCH: "api/search/",
-  CLEAR_SEARCH_HISTORY: "api/search/history/clear",
+export const TOKEN_KEY = 'token';
 
-  // User Management
-  USER_PROFILE: "api/user/profile",
-  USER_PASSWORD: "api/user/password",
-
-  // Admin Operations
-  ADMIN_STATS: "api/admin/stats",
-  ADMIN_USERS: "api/admin/users",
-  ADMIN_USER_DETAIL: "api/admin/users/",
-  ADMIN_USER_DELETE: "api/admin/users/",
-  ADMIN_SEARCHES: "api/admin/searches",
-  ADMIN_ANALYTICS: "api/admin/analytics",
-
-  // System
-  HEALTH: "api/health",
-  API_DOCS: "api",
+export const ROUTES = {
+  HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+  DASHBOARD: '/dashboard',
+  WALLET_SEARCH: '/wallet-search',
+  HISTORY: '/history',
+  PROFILE: '/profile',
+  ADMIN: '/admin',
 };

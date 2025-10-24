@@ -15,8 +15,12 @@ const searchWallet = async (req, res) => {
     const { address } = req.body;
     const userId = req.user._id;
 
+    console.log('🔍 Searching wallet:', address);
+
     // Fetch wallet data from blockchain
     const walletData = await getWalletData(address);
+
+    console.log('✅ Wallet data fetched successfully');
 
     // Analyze transactions
     const analytics = analyzeTransactions(walletData.transactions, address);
@@ -28,7 +32,7 @@ const searchWallet = async (req, res) => {
     );
 
     // Save search to database
-    const search = await Search.create({
+    const searchData = {
       userId,
       walletAddress: address,
       walletData: {
@@ -40,13 +44,26 @@ const searchWallet = async (req, res) => {
         lastTransactionDate: analytics.lastTransactionDate
       },
       apiStatus: 'success'
-    });
+    };
+    
+    const search = await Search.create(searchData);
+    
+    console.log('Search saved with ID:', search._id);
 
     res.status(200).json({
       success: true,
       message: 'Wallet data fetched successfully',
       data: {
-        address: walletData.address,
+        walletAddress: walletData.address,
+        walletData: {
+          balance: walletData.balance,
+          totalTransactions: walletData.totalTransactions,
+          totalReceived: walletData.totalReceived,
+          totalSent: walletData.totalSent,
+          firstTransactionDate: analytics.firstTransactionDate,
+          lastTransactionDate: analytics.lastTransactionDate
+        },
+        apiStatus: 'success',
         balance: walletData.balance,
         balanceBTC: (walletData.balance / 100000000).toFixed(8),
         totalTransactions: walletData.totalTransactions,
@@ -72,7 +89,17 @@ const searchWallet = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Search wallet error:', error);
+    console.error('❌ Search wallet error:', error.message);
+    console.error('Error details:', error);
+
+    // Determine status code based on error
+    let statusCode = 500;
+    let message = error.message; // Return the actual error message
+
+    if (error.message.includes('timeout')) {
+      statusCode = 504;
+      message = 'Blockchain API timeout';
+    }
 
     // Save failed search attempt
     try {
@@ -92,9 +119,9 @@ const searchWallet = async (req, res) => {
       console.error('Error saving failed search:', dbError);
     }
 
-    res.status(500).json({
+    res.status(statusCode).json({
       success: false,
-      message: 'Error fetching wallet data',
+      message,
       error: error.message
     });
   }

@@ -20,11 +20,17 @@ const getSearchHistory = async (req, res) => {
       count: searches.length,
       data: {
         searches: searches.map(search => ({
-          id: search._id,
+          _id: search._id,
           walletAddress: search.walletAddress,
           balance: search.walletData.balance,
           balanceBTC: (search.walletData.balance / 100000000).toFixed(8),
           totalTransactions: search.walletData.totalTransactions,
+          totalReceived: search.walletData.totalReceived,
+          totalReceivedBTC: (search.walletData.totalReceived / 100000000).toFixed(8),
+          totalSent: search.walletData.totalSent,
+          totalSentBTC: (search.walletData.totalSent / 100000000).toFixed(8),
+          firstTransactionDate: search.walletData.firstTransactionDate,
+          lastTransactionDate: search.walletData.lastTransactionDate,
           searchDate: search.createdAt,
           status: search.apiStatus
         }))

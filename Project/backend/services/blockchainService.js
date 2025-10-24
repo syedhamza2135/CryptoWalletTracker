@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-// Base URL for Blockchain.info API
-const BLOCKCHAIN_API_BASE = 'https://blockchain.info';
+// Base URL for Blockstream API
+const BLOCKCHAIN_API_BASE = 'https://blockstream.info/api';
 
 /**
  * Fetch wallet data from Blockchain.info
@@ -10,34 +10,36 @@ const BLOCKCHAIN_API_BASE = 'https://blockchain.info';
  */
 const getWalletData = async (address) => {
   try {
-    // Fetch basic address info
-    const response = await axios.get(
-      `${BLOCKCHAIN_API_BASE}/rawaddr/${address}`,
-      {
-        timeout: 10000, // 10 second timeout
-        params: {
-          limit: 50 // Get last 50 transactions
-        }
-      }
+    // Get address stats from Blockstream
+    const statsResponse = await axios.get(
+      `${BLOCKCHAIN_API_BASE}/address/${address}`,
+      { timeout: 10000 }
     );
+    const stats = statsResponse.data;
 
-    const data = response.data;
+    // Get recent transactions (last 50)
+    const txsResponse = await axios.get(
+      `${BLOCKCHAIN_API_BASE}/address/${address}/txs`,
+      { timeout: 10000 }
+    );
+    const txs = txsResponse.data.slice(0, 50); // Get last 50 transactions
 
     // Parse and structure the data
     return {
-      address: data.address,
-      balance: data.final_balance, // Balance in satoshis
-      totalTransactions: data.n_tx,
-      totalReceived: data.total_received,
-      totalSent: data.total_sent,
-      transactions: data.txs || []
+      address: stats.address,
+      balance: stats.chain_stats.funded_txo_sum - stats.chain_stats.spent_txo_sum, // Balance in satoshis
+      totalTransactions: stats.chain_stats.tx_count,
+      totalReceived: stats.chain_stats.funded_txo_sum,
+      totalSent: stats.chain_stats.spent_txo_sum,
+      transactions: txs
     };
   } catch (error) {
     console.error('Blockchain API error:', error.message);
     
     if (error.response) {
       // API responded with error
-      throw new Error(`Blockchain API error: ${error.response.status}`);
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || `HTTP ${error.response?.status}`;
+      throw new Error(`Blockchain API error: ${errorMsg}`);
     } else if (error.request) {
       // No response received
       throw new Error('No response from Blockchain API');
@@ -81,7 +83,9 @@ const analyzeTransactions = (transactions, walletAddress) => {
   let largestOutgoing = 0;
 
   transactions.forEach((tx) => {
-    const txTime = new Date(tx.time * 1000); // Convert Unix timestamp to Date
+    if (!tx.status || !tx.vin || !tx.vout) return; // Skip invalid transactions
+
+    const txTime = new Date(tx.status.block_time * 1000); // Blockstream uses Unix timestamp
     const monthKey = `${txTime.getFullYear()}-${String(txTime.getMonth() + 1).padStart(2, '0')}`;
 
     // Initialize monthly activity
@@ -90,20 +94,41 @@ const analyzeTransactions = (transactions, walletAddress) => {
     }
     monthlyActivity[monthKey].count++;
 
-    // Determine if transaction is incoming or outgoing
+    // Determine if transaction is incoming or outgoing and calculate amounts
     let isIncoming = false;
     let transactionAmount = 0;
+    let isWalletInvolved = false;
 
-    // Check outputs (where money goes)
-    tx.out.forEach((output) => {
-      const outputAddress = output.addr || '';
-      
-      if (outputAddress === targetAddress) {
-        // Money coming TO our wallet
-        isIncoming = true;
-        transactionAmount += output.value;
-      } else if (outputAddress) {
-        // Track connected wallet
+    // Check if wallet is receiving (targetAddress in vout)
+    const receivedAmount = tx.vout
+      .filter(output => output.scriptpubkey_address === targetAddress)
+      .reduce((sum, output) => sum + output.value, 0);
+
+    if (receivedAmount > 0) {
+      isIncoming = true;
+      isWalletInvolved = true;
+      transactionAmount = receivedAmount;
+    }
+
+    // Check if wallet is sending (targetAddress in vin prevout)
+    const isSending = tx.vin.some(input => input.prevout?.scriptpubkey_address === targetAddress);
+
+    if (isSending && !isIncoming) {
+      isWalletInvolved = true;
+      // For outgoing, amount is total sent from this wallet's inputs
+      const sentAmount = tx.vin
+        .filter(input => input.prevout?.scriptpubkey_address === targetAddress)
+        .reduce((sum, input) => sum + (input.prevout?.value || 0), 0);
+      transactionAmount = sentAmount;
+    }
+
+    // Skip if wallet not involved in this transaction
+    if (!isWalletInvolved) return;
+
+    // Track connected wallets
+    tx.vout.forEach((output) => {
+      const outputAddress = output.scriptpubkey_address;
+      if (outputAddress && outputAddress !== targetAddress) {
         if (!connectedWallets[outputAddress]) {
           connectedWallets[outputAddress] = { count: 0, totalAmount: 0 };
         }
@@ -112,17 +137,14 @@ const analyzeTransactions = (transactions, walletAddress) => {
       }
     });
 
-    // Check inputs (where money comes from)
-    tx.inputs.forEach((input) => {
-      const inputAddress = input.prev_out?.addr || '';
-      
-      if (inputAddress !== targetAddress && inputAddress) {
-        // Track connected wallet
+    tx.vin.forEach((input) => {
+      const inputAddress = input.prevout?.scriptpubkey_address;
+      if (inputAddress && inputAddress !== targetAddress) {
         if (!connectedWallets[inputAddress]) {
           connectedWallets[inputAddress] = { count: 0, totalAmount: 0 };
         }
         connectedWallets[inputAddress].count++;
-        connectedWallets[inputAddress].totalAmount += transactionAmount;
+        connectedWallets[inputAddress].totalAmount += input.prevout?.value || 0;
       }
     });
 
@@ -169,12 +191,12 @@ const analyzeTransactions = (transactions, walletAddress) => {
     .sort((a, b) => a.month.localeCompare(b.month));
 
   // Get first and last transaction dates
-  const sortedByTime = [...transactions].sort((a, b) => a.time - b.time);
+  const sortedByTime = [...transactions].sort((a, b) => a.status.block_time - b.status.block_time);
   const firstTransactionDate = sortedByTime.length > 0 
-    ? new Date(sortedByTime[0].time * 1000) 
+    ? new Date(sortedByTime[0].status.block_time * 1000) 
     : null;
   const lastTransactionDate = sortedByTime.length > 0 
-    ? new Date(sortedByTime[sortedByTime.length - 1].time * 1000) 
+    ? new Date(sortedByTime[sortedByTime.length - 1].status.block_time * 1000) 
     : null;
 
   // Calculate average transaction
@@ -208,31 +230,41 @@ const formatTransactions = (transactions, walletAddress) => {
   const targetAddress = walletAddress;
 
   return transactions.slice(0, 50).map((tx) => {
-    // Determine if incoming or outgoing
+    if (!tx.txid || !tx.status || !tx.vin || !tx.vout) return null; // Skip invalid
+
+    // Determine if incoming or outgoing and calculate amount
     let isIncoming = false;
     let amount = 0;
 
-    tx.out.forEach((output) => {
-      if (output.addr && output.addr === targetAddress) {
-        isIncoming = true;
-        amount += output.value;
-      }
-    });
+    // Check if receiving
+    const receivedAmount = tx.vout
+      .filter(output => output.scriptpubkey_address === targetAddress)
+      .reduce((sum, output) => sum + output.value, 0);
 
-    if (!isIncoming) {
-      tx.out.forEach((output) => {
-        amount += output.value;
-      });
+    if (receivedAmount > 0) {
+      isIncoming = true;
+      amount = receivedAmount;
+    } else {
+      // Check if sending
+      const isSending = tx.vin.some(input => input.prevout?.scriptpubkey_address === targetAddress);
+      if (isSending) {
+        amount = tx.vin
+          .filter(input => input.prevout?.scriptpubkey_address === targetAddress)
+          .reduce((sum, input) => sum + (input.prevout?.value || 0), 0);
+      }
     }
 
+    // Skip if not involved
+    if (amount === 0) return null;
+
     return {
-      hash: tx.hash,
-      time: new Date(tx.time * 1000),
+      hash: tx.txid,
+      time: new Date(tx.status.block_time * 1000),
       amount: amount,
       type: isIncoming ? 'received' : 'sent',
-      confirmations: tx.block_height ? 'Confirmed' : 'Pending'
+      confirmations: tx.status.confirmed ? 'Confirmed' : 'Pending'
     };
-  });
+  }).filter(tx => tx !== null);
 };
 
 module.exports = {

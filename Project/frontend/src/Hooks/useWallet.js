@@ -1,29 +1,20 @@
 import { useState } from 'react';
-import walletService from '../Services/walletService';
+import * as walletApi from '../api/wallet';
 
-/**
- * Custom hook for wallet operations
- * Handles searching and getting wallet data with loading states
- */
-const useWallet = () => {
-  const [walletData, setWalletData] = useState(null);
+export const useWallet = () => {
+  const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const searchWallet = async (address) => {
-    if (!address || typeof address !== 'string' || address.trim() === '') {
-      setError('Invalid address: must be a non-empty string.');
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
-      const response = await walletService.searchWallet(address);
-      setWalletData(response.data); // Extract the data property
+      const response = await walletApi.searchWallet(address);
+      setWallet(response.data);
       return response.data;
     } catch (err) {
-      const errorMessage = err.message || 'Failed to search wallet';
-      setError(errorMessage);
+      setError(err.message);
       throw err;
     } finally {
       setLoading(false);
@@ -31,42 +22,24 @@ const useWallet = () => {
   };
 
   const getWallet = async (address) => {
-    if (!address || typeof address !== 'string' || address.trim() === '') {
-      setError('Invalid address: must be a non-empty string.');
-      return;
-    }
-
     setLoading(true);
     setError(null);
     try {
-      const response = await walletService.getWallet(address.trim());
-      setWalletData(response.data); // Extract the data property
+      const response = await walletApi.getWallet(address);
+      setWallet(response.data);
       return response.data;
     } catch (err) {
-      const errorMessage = err.message || 'Failed to get wallet data';
-      setError(errorMessage);
+      setError(err.message);
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const clearWalletData = () => {
-    setWalletData(null);
+  const clearWallet = () => {
+    setWallet(null);
     setError(null);
   };
 
-  const clearError = () => setError(null);
-
-  return {
-    walletData,
-    loading,
-    error,
-    searchWallet,
-    getWallet,
-    clearWalletData,
-    clearError
-  };
+  return { wallet, loading, error, searchWallet, getWallet, clearWallet };
 };
-
-export default useWallet;

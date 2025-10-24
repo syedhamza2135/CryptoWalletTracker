@@ -12,30 +12,8 @@ const searchSchema = new mongoose.Schema({
     required: [true, 'Wallet address is required'],
     trim: true,
     index: true,
-    validate: {
-      validator: function(address) {
-        // Bitcoin address validation - preserve original case
-        
-        // Bitcoin Base58 characters: 123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz
-        // Excludes: 0 (zero), O (capital o), I (capital i), l (lowercase L)
-        
-        // Legacy addresses (starts with 1 or 3) - typically 25-34 characters
-        if (address.match(/^[13]/)) {
-          return address.length >= 25 && address.length <= 34 && 
-                 /^[13][123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/.test(address);
-        }
-        
-        // Bech32 addresses (starts with bc1) - typically 42-62 characters, lowercase
-        // Bech32 uses specific character set: qpzry9x8gf2tvdw0s3jn54khce6mua7l
-        if (address.match(/^bc1/)) {
-          return address.length >= 39 && address.length <= 62 &&
-                 /^bc1[023456789qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/.test(address);
-        }
-        
-        return false;
-      },
-      message: 'Invalid Bitcoin address format'
-    }
+    minlength: [20, 'Wallet address must be at least 20 characters'],
+    maxlength: [100, 'Wallet address must be at most 100 characters']
   },
   // Snapshot of wallet data at time of search
   walletData: {

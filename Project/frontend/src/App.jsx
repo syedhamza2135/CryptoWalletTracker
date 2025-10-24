@@ -1,65 +1,87 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthContext } from './Context/AuthContext';
-import { Header, Footer } from './Components/Layout';
-import ProtectedRoute from './Components/Auth/ProtectedRoute';
+import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ChakraProvider } from "@chakra-ui/react";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Layout from "./components/ui/Layout";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import WalletSearchPage from "./pages/WalletSearch";
+import History from "./pages/History";
+import Profile from "./pages/Profile";
+import AdminPanel from "./pages/AdminPanel";
+import ErrorBoundary from "./components/ui/ErrorBoundary";
 
-// Pages
-import HomePage from './Pages/HomePage';
-import LoginPage from './Pages/LoginPage';
-import RegisterPage from './Pages/RegisterPage';
-import DashboardPage from './Pages/DashboardPage';
-
-function App() {
-  const { isAuthenticated } = useAuthContext();
-
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
+    <ErrorBoundary>
+      <ChakraProvider>
+        <AuthProvider>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Layout>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-      <main className="flex-1">
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/"
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <HomePage />
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
-            }
-          />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+                <Route
+                  path="/wallet-search"
+                  element={
+                    <ProtectedRoute>
+                      <WalletSearchPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-          {/* Catch all route */}
-          <Route
-            path="*"
-            element={<Navigate to={isAuthenticated ? "/dashboard" : "/"} replace />}
-          />
-        </Routes>
-      </main>
+                <Route
+                  path="/history"
+                  element={
+                    <ProtectedRoute>
+                      <History />
+                    </ProtectedRoute>
+                  }
+                />
 
-      <Footer />
-    </div>
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminPanel />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+                <Route
+                  path="*"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+              </Routes>
+            </Layout>
+          </BrowserRouter>
+        </AuthProvider>
+      </ChakraProvider>
+    </ErrorBoundary>
   );
 }
-
-export default App;
