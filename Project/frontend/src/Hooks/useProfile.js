@@ -1,11 +1,13 @@
 // src/hooks/useProfile.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 import * as userApi from '../api/user';
 
 export const useProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { updateUser } = useContext(AuthContext);
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -26,6 +28,8 @@ export const useProfile = () => {
     try {
       const response = await userApi.updateProfile(data);
       setProfile(response.data);
+      // Update the AuthContext user data as well
+      updateUser(response.data);
       return response.data;
     } catch (err) {
       setError(err.message);

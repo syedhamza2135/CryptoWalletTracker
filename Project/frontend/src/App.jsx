@@ -4,14 +4,32 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Layout from "./components/ui/Layout";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import WalletSearchPage from "./pages/WalletSearch";
-import History from "./pages/History";
-import Profile from "./pages/Profile";
-import AdminPanel from "./pages/AdminPanel";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
+import { lazy, Suspense } from "react";
+
+// Lazy load page components for code splitting
+const Landing = lazy(() => import("./pages/Landing"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const WalletSearchPage = lazy(() => import("./pages/WalletSearch"));
+const History = lazy(() => import("./pages/History"));
+const Profile = lazy(() => import("./pages/Profile"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+
+// Loading component
+const PageLoader = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    fontSize: '18px',
+    color: '#666'
+  }}>
+    Loading...
+  </div>
+);
 
 export default function App() {
   return (
@@ -19,66 +37,77 @@ export default function App() {
       <ChakraProvider>
         <AuthProvider>
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <Layout>
+            <Suspense fallback={<PageLoader />}>
               <Routes>
+                {/* Landing page */}
+                <Route path="/" element={<Landing />} />
+
+                {/* Public routes without layout */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
+                {/* Protected routes with layout */}
                 <Route
                   path="/dashboard"
                   element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
+                    <Layout>
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    </Layout>
                   }
                 />
 
                 <Route
                   path="/wallet-search"
                   element={
-                    <ProtectedRoute>
-                      <WalletSearchPage />
-                    </ProtectedRoute>
+                    <Layout>
+                      <ProtectedRoute>
+                        <WalletSearchPage />
+                      </ProtectedRoute>
+                    </Layout>
                   }
                 />
 
                 <Route
                   path="/history"
                   element={
-                    <ProtectedRoute>
-                      <History />
-                    </ProtectedRoute>
+                    <Layout>
+                      <ProtectedRoute>
+                        <History />
+                      </ProtectedRoute>
+                    </Layout>
                   }
                 />
 
                 <Route
                   path="/profile"
                   element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
+                    <Layout>
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    </Layout>
                   }
                 />
 
                 <Route
                   path="/admin"
                   element={
-                    <ProtectedRoute adminOnly>
-                      <AdminPanel />
-                    </ProtectedRoute>
+                    <Layout>
+                      <ProtectedRoute adminOnly>
+                        <AdminPanel />
+                      </ProtectedRoute>
+                    </Layout>
                   }
                 />
 
                 <Route
-                  path="/"
-                  element={<Navigate to="/dashboard" replace />}
-                />
-                <Route
                   path="*"
-                  element={<Navigate to="/dashboard" replace />}
+                  element={<Navigate to="/" replace />}
                 />
               </Routes>
-            </Layout>
+            </Suspense>
           </BrowserRouter>
         </AuthProvider>
       </ChakraProvider>

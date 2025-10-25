@@ -6,10 +6,15 @@ import {
   FormLabel,
   Input,
   VStack,
-  Heading,
   useToast,
   FormErrorMessage,
+  Card,
+  CardBody,
+  InputGroup,
+  InputLeftElement,
+  Text,
 } from '@chakra-ui/react';
+import { User, Mail, Save } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { isValidEmail, isValidName } from '../../utils/validators';
 
@@ -22,7 +27,10 @@ export default function ProfileForm() {
 
   useEffect(() => {
     if (profile) {
-      setFormData({ name: profile.name, email: profile.email });
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || ''
+      });
     }
   }, [profile]);
 
@@ -62,41 +70,107 @@ export default function ProfileForm() {
     }
   };
 
-  if (loading) return null;
+  if (loading || !profile) {
+    return (
+      <Card bg="white" shadow="lg" borderRadius="xl">
+        <CardBody p={8}>
+          <Text textAlign="center" color="gray.500">Loading profile...</Text>
+        </CardBody>
+      </Card>
+    );
+  }
 
   return (
-    <Box maxW="md" p={6} borderWidth={1} borderRadius="lg">
-      <VStack spacing={4} as="form" onSubmit={handleSubmit}>
-        <Heading size="md">Profile Information</Heading>
+    <Card
+      bg="white"
+      shadow="2xl"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="gray.100"
+      w="full"
+    >
+      <CardBody p={8}>
+        <VStack spacing={6} as="form" onSubmit={handleSubmit}>
+          <VStack spacing={4} w="full">
+            <FormControl isInvalid={errors.name}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Full Name
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <User size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.name}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl isInvalid={errors.name}>
-          <FormLabel>Name</FormLabel>
-          <Input
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <FormErrorMessage>{errors.name}</FormErrorMessage>
-        </FormControl>
+            <FormControl isInvalid={errors.email}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Email Address
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Mail size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.email}</FormErrorMessage>
+            </FormControl>
+          </VStack>
 
-        <FormControl isInvalid={errors.email}>
-          <FormLabel>Email</FormLabel>
-          <Input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-          <FormErrorMessage>{errors.email}</FormErrorMessage>
-        </FormControl>
-
-        <Button
-          type="submit"
-          colorScheme="blue"
-          width="full"
-          isLoading={submitting}
-        >
-          Update Profile
-        </Button>
-      </VStack>
-    </Box>
+          <Button
+            type="submit"
+            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            color="white"
+            size="lg"
+            width="full"
+            isLoading={submitting}
+            leftIcon={<Save size={18} />}
+            _hover={{
+              bg: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+              transform: 'translateY(-1px)',
+              boxShadow: 'lg',
+            }}
+            _active={{
+              transform: 'translateY(0)',
+            }}
+            transition="all 0.2s"
+          >
+            Update Profile
+          </Button>
+        </VStack>
+      </CardBody>
+    </Card>
   );
 }

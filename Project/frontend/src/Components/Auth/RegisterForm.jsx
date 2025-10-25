@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -8,10 +8,15 @@ import {
   Input,
   VStack,
   Heading,
-  Text,
   useToast,
   FormErrorMessage,
+  Card,
+  CardBody,
+  InputGroup,
+  InputLeftElement,
+  Text,
 } from '@chakra-ui/react';
+import { User, Mail, Lock, Shield } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { isValidEmail, isValidPassword, isValidName } from '../../utils/validators';
 
@@ -76,65 +81,161 @@ export default function RegisterForm() {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg">
-      <VStack spacing={4} as="form" onSubmit={handleSubmit}>
-        <Heading size="lg">Register</Heading>
+    <Card
+      bg="white"
+      shadow="2xl"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="gray.100"
+      w="full"
+      maxW="md"
+    >
+      <CardBody p={8}>
+        <VStack spacing={6} as="form" onSubmit={handleSubmit}>
+          <VStack spacing={2} textAlign="center">
+            <Heading size="lg" color="gray.800">
+              Create Account
+            </Heading>
+            <Text color="gray.600" fontSize="sm">
+              Join the Bitcoin tracking community
+            </Text>
+          </VStack>
 
-        <FormControl isInvalid={errors.name}>
-          <FormLabel>Name</FormLabel>
-          <Input
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <FormErrorMessage>{errors.name}</FormErrorMessage>
-        </FormControl>
+          <VStack spacing={4} w="full">
+            <FormControl isInvalid={errors.name}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Full Name
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <User size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.name}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl isInvalid={errors.email}>
-          <FormLabel>Email</FormLabel>
-          <Input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-          <FormErrorMessage>{errors.email}</FormErrorMessage>
-        </FormControl>
+            <FormControl isInvalid={errors.email}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Email Address
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Mail size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.email}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl isInvalid={errors.password}>
-          <FormLabel>Password</FormLabel>
-          <Input
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          />
-          <FormErrorMessage>{errors.password}</FormErrorMessage>
-        </FormControl>
+            <FormControl isInvalid={errors.password}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Password
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Lock size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="password"
+                  placeholder="Create a password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.password}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl isInvalid={errors.confirmPassword}>
-          <FormLabel>Confirm Password</FormLabel>
-          <Input
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-          />
-          <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
-        </FormControl>
+            <FormControl isInvalid={errors.confirmPassword}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Confirm Password
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Shield size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
+            </FormControl>
+          </VStack>
 
-        <Button
-          type="submit"
-          colorScheme="blue"
-          width="full"
-          isLoading={loading}
-        >
-          Register
-        </Button>
-
-        <Text>
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-500 hover:underline">
-            Login
-          </Link>
-        </Text>
-      </VStack>
-    </Box>
+          <Button
+            type="submit"
+            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            color="white"
+            size="lg"
+            width="full"
+            isLoading={loading}
+            _hover={{
+              bg: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+              transform: 'translateY(-1px)',
+              boxShadow: 'lg',
+            }}
+            _active={{
+              transform: 'translateY(0)',
+            }}
+            transition="all 0.2s"
+          >
+            Create Account
+          </Button>
+        </VStack>
+      </CardBody>
+    </Card>
   );
 }

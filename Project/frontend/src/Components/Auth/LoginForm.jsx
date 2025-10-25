@@ -61,45 +61,71 @@ export default function LoginForm() {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg">
-      <VStack spacing={4} as="form" onSubmit={handleSubmit}>
-        <Heading size="lg">Login</Heading>
+    <Box
+      bg="white"
+      p={8}
+      borderRadius="xl"
+      boxShadow="2xl"
+      w="full"
+      maxW="md"
+    >
+      <VStack spacing={6} as="form" onSubmit={handleSubmit}>
+        <VStack spacing={2}>
+          <Heading size="lg" color="gray.800">Welcome Back</Heading>
+          <Text color="gray.600" textAlign="center">
+            Sign in to your account to continue
+          </Text>
+        </VStack>
 
-        <FormControl isInvalid={errors.email}>
-          <FormLabel>Email</FormLabel>
-          <Input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-          <FormErrorMessage>{errors.email}</FormErrorMessage>
-        </FormControl>
+        <VStack spacing={4} w="full">
+          <FormControl isInvalid={errors.email}>
+            <FormLabel color="gray.700" fontWeight="semibold">Email</FormLabel>
+            <Input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="Enter your email"
+              size="lg"
+              bg="gray.50"
+              border="1px solid"
+              borderColor="gray.200"
+              _hover={{ borderColor: 'blue.300' }}
+              _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px blue.500' }}
+            />
+            <FormErrorMessage>{errors.email}</FormErrorMessage>
+          </FormControl>
 
-        <FormControl isInvalid={errors.password}>
-          <FormLabel>Password</FormLabel>
-          <Input
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          />
-          <FormErrorMessage>{errors.password}</FormErrorMessage>
-        </FormControl>
+          <FormControl isInvalid={errors.password}>
+            <FormLabel color="gray.700" fontWeight="semibold">Password</FormLabel>
+            <Input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Enter your password"
+              size="lg"
+              bg="gray.50"
+              border="1px solid"
+              borderColor="gray.200"
+              _hover={{ borderColor: 'blue.300' }}
+              _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px blue.500' }}
+            />
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
+          </FormControl>
+        </VStack>
 
         <Button
           type="submit"
           colorScheme="blue"
           width="full"
+          size="lg"
           isLoading={loading}
+          bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+          _hover={{ bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)' }}
+          color="white"
+          fontWeight="semibold"
         >
-          Login
+          Sign In
         </Button>
-
-        <Text>
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:underline">
-            Register
-          </Link>
-        </Text>
       </VStack>
     </Box>
   );

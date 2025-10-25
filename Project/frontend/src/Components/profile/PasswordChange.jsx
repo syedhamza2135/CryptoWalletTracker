@@ -6,10 +6,15 @@ import {
   FormLabel,
   Input,
   VStack,
-  Heading,
   useToast,
   FormErrorMessage,
+  Card,
+  CardBody,
+  InputGroup,
+  InputLeftElement,
+  Text,
 } from '@chakra-ui/react';
+import { Lock, Shield, Key } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { isValidPassword } from '../../utils/validators';
 
@@ -50,14 +55,14 @@ export default function PasswordChange() {
         newPassword: formData.newPassword,
       });
       toast({
-        title: 'Password changed',
+        title: 'Password changed successfully',
         status: 'success',
         duration: 3000,
       });
       setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       toast({
-        title: 'Change failed',
+        title: 'Password change failed',
         description: error.message,
         status: 'error',
         duration: 4000,
@@ -68,49 +73,133 @@ export default function PasswordChange() {
   };
 
   return (
-    <Box maxW="md" p={6} borderWidth={1} borderRadius="lg">
-      <VStack spacing={4} as="form" onSubmit={handleSubmit}>
-        <Heading size="md">Change Password</Heading>
+    <Card
+      bg="white"
+      shadow="2xl"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="gray.100"
+      w="full"
+    >
+      <CardBody p={8}>
+        <VStack spacing={6} as="form" onSubmit={handleSubmit}>
+          <VStack spacing={2} textAlign="center" w="full">
+            <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+              Change Password
+            </Text>
+            <Text color="gray.600" fontSize="sm">
+              Keep your account secure with a strong password
+            </Text>
+          </VStack>
 
-        <FormControl isInvalid={errors.currentPassword}>
-          <FormLabel>Current Password</FormLabel>
-          <Input
-            type="password"
-            value={formData.currentPassword}
-            onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-          />
-          <FormErrorMessage>{errors.currentPassword}</FormErrorMessage>
-        </FormControl>
+          <VStack spacing={4} w="full">
+            <FormControl isInvalid={errors.currentPassword}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Current Password
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Lock size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="password"
+                  placeholder="Enter current password"
+                  value={formData.currentPassword}
+                  onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.currentPassword}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl isInvalid={errors.newPassword}>
-          <FormLabel>New Password</FormLabel>
-          <Input
-            type="password"
-            value={formData.newPassword}
-            onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-          />
-          <FormErrorMessage>{errors.newPassword}</FormErrorMessage>
-        </FormControl>
+            <FormControl isInvalid={errors.newPassword}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                New Password
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Key size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="password"
+                  placeholder="Enter new password"
+                  value={formData.newPassword}
+                  onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.newPassword}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl isInvalid={errors.confirmPassword}>
-          <FormLabel>Confirm New Password</FormLabel>
-          <Input
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-          />
-          <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
-        </FormControl>
+            <FormControl isInvalid={errors.confirmPassword}>
+              <FormLabel color="gray.700" fontWeight="semibold">
+                Confirm New Password
+              </FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Shield size={18} color="#718096" />
+                </InputLeftElement>
+                <Input
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'purple.300' }}
+                  _focus={{
+                    borderColor: 'purple.500',
+                    boxShadow: '0 0 0 1px #805AD5',
+                    bg: 'white',
+                  }}
+                  size="lg"
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
+            </FormControl>
+          </VStack>
 
-        <Button
-          type="submit"
-          colorScheme="blue"
-          width="full"
-          isLoading={loading}
-        >
-          Change Password
-        </Button>
-      </VStack>
-    </Box>
+          <Button
+            type="submit"
+            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            color="white"
+            size="lg"
+            width="full"
+            isLoading={loading}
+            leftIcon={<Shield size={18} />}
+            _hover={{
+              bg: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+              transform: 'translateY(-1px)',
+              boxShadow: 'lg',
+            }}
+            _active={{
+              transform: 'translateY(0)',
+            }}
+            transition="all 0.2s"
+          >
+            Change Password
+          </Button>
+        </VStack>
+      </CardBody>
+    </Card>
   );
 }
