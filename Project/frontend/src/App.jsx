@@ -1,10 +1,10 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
-import { AuthProvider } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
-import Layout from "./components/ui/Layout";
-import ErrorBoundary from "./components/ui/ErrorBoundary";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import Layout from "./components/ui/Layout.jsx";
+import ErrorBoundary from "./components/ui/ErrorBoundary.jsx";
 import { lazy, Suspense } from "react";
 
 // Lazy load page components for code splitting

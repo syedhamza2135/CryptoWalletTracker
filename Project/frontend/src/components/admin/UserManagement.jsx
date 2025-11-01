@@ -27,6 +27,7 @@ export default function UserManagement() {
     try {
       const response = await getUsers();
       setUsers(response.data);
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast({
         title: 'Failed to load users',
@@ -40,6 +41,7 @@ export default function UserManagement() {
 
   useEffect(() => {
     fetchUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDelete = async (id) => {

@@ -1,7 +1,6 @@
-// src/hooks/useProfile.js
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
-import * as userApi from '../api/user';
+import { useState, useContext, useEffect } from "react";
+import { AuthContext } from "../contexts/AuthContext.jsx";
+import * as userApi from "../api/user.js"
 
 export const useProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -15,8 +14,11 @@ export const useProfile = () => {
     try {
       const response = await userApi.getProfile();
       setProfile(response.data);
+      return response.data;
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err.response?.data?.message || err.message || "Failed to fetch user profile";
+      setError(errorMessage);
+      console.error("Fetch Profile error: ", err);
     } finally {
       setLoading(false);
     }
@@ -28,11 +30,12 @@ export const useProfile = () => {
     try {
       const response = await userApi.updateProfile(data);
       setProfile(response.data);
-      // Update the AuthContext user data as well
       updateUser(response.data);
       return response.data;
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update profile';
+      setError(errorMessage);
+      console.error('Update profile error:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -40,10 +43,18 @@ export const useProfile = () => {
   };
 
   const changePassword = async (passwords) => {
+    setLoading(true);
+    setError(null);
     try {
-      await userApi.changePassword(passwords);
+      const response = await userApi.changePassword(passwords);
+      return response.data;
     } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to change password';
+      setError(errorMessage);
+      console.error('Change password error:', err);
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,5 +62,12 @@ export const useProfile = () => {
     fetchProfile();
   }, []);
 
-  return { profile, loading, error, updateProfile, changePassword, fetchProfile };
+  return { 
+    profile, 
+    loading, 
+    error, 
+    updateProfile, 
+    changePassword, 
+    fetchProfile 
+  };
 };

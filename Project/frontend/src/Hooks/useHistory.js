@@ -28,6 +28,9 @@ export const useHistory = () => {
       await searchApi.deleteSearch(id);
       setHistory(prev => prev.filter(item => item._id !== id));
     } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || "Failed to clear Search";
+      setError(errorMessage);
+      console.error("Clear Search Error", err);
       throw err;
     }
   };
@@ -37,6 +40,9 @@ export const useHistory = () => {
       await searchApi.clearHistory();
       setHistory([]);
     } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || "Failed to clear History";
+      setError(errorMessage);
+      console.error("Clear History Error", err);
       throw err;
     }
   };
